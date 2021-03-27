@@ -7,7 +7,7 @@ import { Feather } from '@expo/vector-icons'
 import Api from '../../services/api.js'
 
 export default function Main() {
-    const [id,setId] = useState(0)
+    const [id, setId] = useState(0)
     const [produtos, setProdutos] = useState([])
     const [totalPreco, setTotalPreco] = useState(0)
     const [modalVisible, setModalVisible] = useState(false)
@@ -15,11 +15,22 @@ export default function Main() {
     const [quantidade, setQuantidade] = useState(0)
     const [nome, setNome] = useState('')
 
+    const clearValues = () => {
+        setPreco(0)
+        setId(0)
+        setQuantidade(0)
+        setNome('')
+    }
 
-    const handleProductId = async (id = 0) => 
+    const deleteProduct = async (id) => 
     {
-        if(id>0)
-        {
+        await Api.delete(`produtos/${id}`)
+
+        await loadProducts()
+    }
+
+    const handleProductId = async (id = 0) => {
+        if (id > 0) {
             const product = await Api.get(`produtos/${id}`)
 
             setId(product.data.produto.id)
@@ -27,9 +38,8 @@ export default function Main() {
             setPreco(product.data.produto.preco)
             setQuantidade(product.data.produto.quantidade)
         }
-        else
-        {
-            setId(0)
+        else {
+            clearValues()
         }
 
         setModalVisible(!modalVisible)
@@ -44,12 +54,10 @@ export default function Main() {
         return auxTotal
     }
 
-    const handleProductPost = async (id = 0) => 
-    {
+    const handleProductPost = async (id = 0) => {
         Number.parseInt(id)
-        if(id === 0)
-        {
-            const newProduct = 
+        if (id === 0) {
+            const newProduct =
             {
                 nome,
                 preco,
@@ -57,12 +65,9 @@ export default function Main() {
             }
 
             await Api.post('produtos', newProduct)
-
-            loadProducts()
         }
-        else
-        {
-            const updatedProduct = 
+        else {
+            const updatedProduct =
             {
                 id,
                 nome,
@@ -72,8 +77,9 @@ export default function Main() {
 
             await Api.put(`produtos/${id}`, updatedProduct)
 
-            loadProducts()
+            
         }
+        await loadProducts()
 
         setModalVisible(!modalVisible)
     }
@@ -101,7 +107,7 @@ export default function Main() {
                     <View>
                         <TextInput
                             value={nome}
-                            onChangeValue={setNome}
+                            onChangeText={setNome}
                         />
                         <CurrencyInput
                             value={preco}
@@ -126,16 +132,16 @@ export default function Main() {
                             rightButtonBackgroundColor='#EA3788'
                             leftButtonBackgroundColor='#E56B70'
                         />
-                        <TouchableOpacity
+                        <TouchableOpacity style={Style.btnBox}
                             onPress={() => setModalVisible(!modalVisible)}
                         >
                             <Text>Hide Modal</Text>
                         </TouchableOpacity>
                     </View>
-                    {id > 0 ? <TouchableOpacity onPress={() => handleProductPost(id)}>
+                    {id > 0 ? <TouchableOpacity style={Style.btnBox} onPress={() => handleProductPost(id)}>
                         <Text>Editar produto</Text>
                         <Feather name="arrow-right" size={16} color="#e02041" />
-                    </TouchableOpacity> : <TouchableOpacity onPress={() => handleProductPost()}>
+                    </TouchableOpacity> : <TouchableOpacity style={Style.btnBox} onPress={() => handleProductPost()}>
                         <Text>Adicionar produto</Text>
                         <Feather name="arrow-right" size={16} color="#e02041" />
                     </TouchableOpacity>}
@@ -146,23 +152,38 @@ export default function Main() {
                 keyExtractor={lProduto => String(lProduto.id)}
                 onEndReachedThreshold={0.2}
                 renderItem={({ item: lProduto }) => (
-                    <View>
-                        <Text>ONG:</Text>
-                        <Text>{lProduto.nome}</Text>
+                    <View style={Style.productBox}>
+                        <View>
+                            <TouchableOpacity style={Style.closeBtn} onPress={() => deleteProduct(Number.parseInt(lProduto.id))}>
+                                <Feather name="x" size={16} color="#e02041" />
+                            </TouchableOpacity>
+                        </View>
+                        <View>
+                            <View style={Style.contentValue}>
+                                <Text>ONG:</Text>
+                                <Text>{lProduto.nome}</Text>
+                            </View>
 
-                        <Text>Caso:</Text>
-                        <Text>{lProduto.quantidade}</Text>
+                            <View style={Style.contentValue}>
+                                <Text>Caso:</Text>
+                                <Text>{lProduto.quantidade}</Text>
+                            </View>
 
-                        <Text>Valor:</Text>
-                        <Text>
-                            {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
-                                .format(lProduto.preco)}
-                        </Text>
 
-                        <TouchableOpacity onPress={() => handleProductId(Number.parseInt(lProduto.id))}>
-                            <Text>Editar produto</Text>
-                            <Feather name="arrow-right" size={16} color="#e02041" />
-                        </TouchableOpacity>
+                            <View style={Style.contentValue}>
+                                <Text>Valor:</Text>
+                                <Text>
+                                    {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
+                                        .format(lProduto.preco)}
+                                </Text>
+                            </View>
+
+
+                            <TouchableOpacity style={Style.btnBox} onPress={() => handleProductId(Number.parseInt(lProduto.id))}>
+                                <Text>Editar produto</Text>
+                                <Feather name="arrow-right" size={16} color="#e02041" />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 )}
             >
@@ -174,7 +195,7 @@ export default function Main() {
                 {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
                     .format(totalPreco)}
             </Text>
-            <TouchableOpacity onPress={() => handleProductId(0)}>
+            <TouchableOpacity style={Style.btnBox} onPress={() => handleProductId(0)}>
                 <Text>Adicionar produto</Text>
                 <Feather name="arrow-right" size={16} color="#e02041" />
             </TouchableOpacity>
