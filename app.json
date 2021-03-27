@@ -11,9 +11,11 @@
     ],
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.PNG",
     "splash": {
+      "image": "./assets/pontoVirgula.PNG",
       "resizeMode": "contain",
-      "backgroundColor": "#e02041"
+      "backgroundColor": "#333738"
     },
     "updates": {
       "fallbackToCacheTimeout": 0

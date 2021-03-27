@@ -22,8 +22,7 @@ export default function Main() {
         setNome('')
     }
 
-    const deleteProduct = async (id) => 
-    {
+    const deleteProduct = async (id) => {
         await Api.delete(`produtos/${id}`)
 
         await loadProducts()
@@ -77,7 +76,7 @@ export default function Main() {
 
             await Api.put(`produtos/${id}`, updatedProduct)
 
-            
+
         }
         await loadProducts()
 
@@ -103,48 +102,57 @@ export default function Main() {
                 transparent={true}
                 visible={modalVisible}
             >
-                <View>
-                    <View>
-                        <TextInput
-                            value={nome}
-                            onChangeText={setNome}
-                        />
-                        <CurrencyInput
-                            value={preco}
-                            onChangeValue={setPreco}
-                            unit="$"
-                            delimiter=","
-                            separator="."
-                            precision={2}
-                        />
-                        <NumericInput
-                            value={quantidade}
-                            onChange={setQuantidade}
-                            totalWidth={240}
-                            totalHeight={50}
-                            iconSize={25}
-                            step={1}
-                            minValue={0}
-                            valueType='integer'
-                            rounded
-                            textColor='#B0228C'
-                            iconStyle={{ color: 'white' }}
-                            rightButtonBackgroundColor='#EA3788'
-                            leftButtonBackgroundColor='#E56B70'
-                        />
-                        <TouchableOpacity style={Style.btnBox}
-                            onPress={() => setModalVisible(!modalVisible)}
-                        >
-                            <Text>Hide Modal</Text>
-                        </TouchableOpacity>
+                <View style={Style.modalBox}>
+                    <TouchableOpacity style={Style.closeBtn}
+                        onPress={() => setModalVisible(!modalVisible)}
+                    >
+                        <Feather name="x" size={16} color="#fff" />
+                    </TouchableOpacity>
+                    <View style={Style.modalContext}>
+                        <View style={Style.inputAlign}>
+                            <TextInput
+                                value={nome}
+                                onChangeText={setNome}
+                                placeholder='Nome do produto'
+                            />
+                        </View>
+
+                        <View style={Style.inputAlign}>
+                            <CurrencyInput
+                                value={preco}
+                                onChangeValue={setPreco}
+                                unit="$"
+                                delimiter=","
+                                separator="."
+                                precision={2}
+                            />
+                        </View>
+
+                        <View style={Style.inputAlign}>
+                            <NumericInput
+                                value={quantidade}
+                                onChange={setQuantidade}
+                                totalWidth={240}
+                                totalHeight={50}
+                                iconSize={25}
+                                step={1}
+                                minValue={0}
+                                valueType='integer'
+                                rounded
+                                textColor='#B4B5BE'
+                                iconStyle={{ color: 'white' }}
+                                rightButtonBackgroundColor='#333738'
+                                leftButtonBackgroundColor='#333738'
+                            />
+                        </View>
+
+                        {id > 0 ? <TouchableOpacity style={Style.modalBtn} onPress={() => handleProductPost(id)}>
+                            <Text>Editar produto</Text>
+                        </TouchableOpacity> : <TouchableOpacity style={Style.modalBtn} onPress={() => handleProductPost()}>
+                            <Text>Adicionar produto</Text>
+                        </TouchableOpacity>}
                     </View>
-                    {id > 0 ? <TouchableOpacity style={Style.btnBox} onPress={() => handleProductPost(id)}>
-                        <Text>Editar produto</Text>
-                        <Feather name="arrow-right" size={16} color="#e02041" />
-                    </TouchableOpacity> : <TouchableOpacity style={Style.btnBox} onPress={() => handleProductPost()}>
-                        <Text>Adicionar produto</Text>
-                        <Feather name="arrow-right" size={16} color="#e02041" />
-                    </TouchableOpacity>}
+
                 </View>
             </Modal>
             <FlatList
@@ -155,24 +163,24 @@ export default function Main() {
                     <View style={Style.productBox}>
                         <View>
                             <TouchableOpacity style={Style.closeBtn} onPress={() => deleteProduct(Number.parseInt(lProduto.id))}>
-                                <Feather name="x" size={16} color="#e02041" />
+                                <Feather name="x" size={16} color="#fff" />
                             </TouchableOpacity>
                         </View>
                         <View>
                             <View style={Style.contentValue}>
-                                <Text>ONG:</Text>
-                                <Text>{lProduto.nome}</Text>
+                                <Text style={Style.textBoxProperty}>ONG:</Text>
+                                <Text style={Style.valueBoxProperty}>{lProduto.nome}</Text>
                             </View>
 
                             <View style={Style.contentValue}>
-                                <Text>Caso:</Text>
-                                <Text>{lProduto.quantidade}</Text>
+                                <Text style={Style.textBoxProperty}>Caso:</Text>
+                                <Text style={Style.valueBoxProperty}>{lProduto.quantidade}</Text>
                             </View>
 
 
                             <View style={Style.contentValue}>
-                                <Text>Valor:</Text>
-                                <Text>
+                                <Text style={Style.textBoxProperty}>Valor:</Text>
+                                <Text style={Style.valueBoxProperty}>
                                     {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
                                         .format(lProduto.preco)}
                                 </Text>
@@ -181,7 +189,7 @@ export default function Main() {
 
                             <TouchableOpacity style={Style.btnBox} onPress={() => handleProductId(Number.parseInt(lProduto.id))}>
                                 <Text>Editar produto</Text>
-                                <Feather name="arrow-right" size={16} color="#e02041" />
+                                <Feather name="edit-2" size={16} color="black" />
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -190,14 +198,16 @@ export default function Main() {
 
             </FlatList>
 
-            <Text>Preço dos produtos</Text>
-            <Text>
-                {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
-                    .format(totalPreco)}
-            </Text>
+            <View style={Style.totalValue}>
+                <Text style={Style.textPropDark}>
+                    {totalPreco > 0 && 'Preço total: ' + Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
+                        .format(totalPreco)}
+                </Text>
+            </View>
+
             <TouchableOpacity style={Style.btnBox} onPress={() => handleProductId(0)}>
-                <Text>Adicionar produto</Text>
-                <Feather name="arrow-right" size={16} color="#e02041" />
+                <Text >Adicionar produto</Text>
+                <Feather name="arrow-right" size={16} color="black" />
             </TouchableOpacity>
         </View>
     )
